@@ -1,0 +1,17 @@
+java_version=17.0.18
+java_vm=OpenJDK 64-Bit Server VM
+java_vendor=Microsoft
+os_name=Mac OS X
+os_version=26.3.1
+os_arch=aarch64
+available_processors=8
+max_heap_bytes=268435456
+seed=42
+warmup_runs=2
+measured_runs=5
+time_unit=s
+warmup_order=all cases before any retained measurement
+data_range=0..999999
+w3_order=1000 insertions, then 1000 removals at the same index
+w3_middle_index=initial n / 2
+validation=after the timer and counter snapshot

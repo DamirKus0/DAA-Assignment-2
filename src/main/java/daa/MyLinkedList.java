@@ -1,7 +1,7 @@
 package daa;
 
 /** A singly linked list with a tail reference for constant-time append. */
-public final class MyLinkedList {
+public final class MyLinkedList implements IntList {
     private static final class Node {
         private final int value;
         private Node next;

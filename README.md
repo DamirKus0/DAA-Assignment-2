@@ -32,11 +32,75 @@ To use an installed JDK 17 on macOS:
 export JAVA_HOME=$(/usr/libexec/java_home -v 17)
 ```
 
+## Run the benchmark
+
+Build, run the tests, and reproduce all 36 rows in `results/results.csv` with:
+
+```sh
+./mvnw -Pbenchmark verify
+```
+
+On Windows, use `mvnw.cmd -Pbenchmark verify`. The `benchmark` Maven profile uses
+the [Exec Maven Plugin](https://www.mojohaus.org/exec-maven-plugin/examples/example-exec-for-java-programs.html)
+to start a separate Java process with `-Xms256m -Xmx256m`. The first run may need
+to download the plugin. Runtime details are saved in `results/benchmark-info.txt`.
+
+The program generates data with `new Random(42)` for each of the four sizes:
+100, 1,000, 10,000, and 100,000. Stored values are in `0..999999`. One input object
+per size contains the values and query sequences shared by both list structures
+and all repeats. `IntList` declares their existing common methods, so both run
+through the same workload code.
+
+| Workload | Measured operations |
+| --- | --- |
+| W1 | 10,000 random `get(index)` calls. |
+| W2 | 1,000 `contains(value)` calls: 500 values selected from the actual input and 500 negative values that cannot be present. This query array is shuffled once before the repeats. |
+| W3, head | 1,000 insertions at index 0, followed by 1,000 removals at index 0. |
+| W3, middle | 1,000 insertions at the original `n / 2`, followed by 1,000 removals at that same fixed index. The index does not change as the size changes. |
+| W4 | Insert all `n` values into an empty heap, then extract all `n` values. |
+
+First, the entire suite runs two warm-ups per case. Only after every case has
+warmed up does the measured phase start, with five runs per case. This exercises
+both structures and every workload before retaining any time measurements. Every
+run creates a fresh structure. Input generation, output-buffer allocation, and
+the initial filling for W1-W3 happen before timing. Counters are reset after
+setup. W4 includes both insertion and extraction, including heap expansion.
+
+The measured region includes the workload loops, calls to the structures,
+operation-counter updates, and small bookkeeping operations: accumulating W1/W2
+results and storing W3/W4 output values. Correctness checks happen after timing
+and after copying the counters into a sample. W1 checks the returned sum; W2
+checks that exactly 500 queries succeed. W3 checks reverse insertion order and
+all original values. To keep that last check linear, it reads the array by index
+and drains the linked list from its head. This validation does not enter the CSV
+counts. W4 checks nondecreasing output, the sum, and the empty final heap; the
+JUnit heap tests separately check exact values and duplicate counts.
+
+Time is measured with `System.nanoTime()` and converted to seconds by dividing
+the elapsed nanoseconds by `1_000_000_000.0`. The third of five sorted samples
+provides the median time. The program checks that all five samples have identical
+operation counts; each CSV row contains those counts for one measured run, not
+their sum across the five runs. Warm-up results are discarded.
+
+The CSV header is:
+
+```text
+workload,variant,structure,n,time_s,steps,moves,comparisons
+```
+
+Variants are `head` and `middle` for W3 and `-` otherwise. Times use a decimal
+point and nine decimal places, preserving any positive nanosecond measurement.
+The CSV is written only after every case completes successfully. Repeated runs
+should reproduce operation counts; elapsed times can change with JVM compilation,
+garbage collection, and other activity on the computer. Two warm-ups reduce
+startup effects but do not guarantee that the JVM has reached a steady state.
+
 ## Project layout
 
 - `src/main/java/`: data structures, operation counters, and benchmark.
 - `src/test/java/`: JUnit 5 tests.
-- `results/results.csv`: measured benchmark results, added after running the benchmark.
+- `results/results.csv`: measured benchmark results.
+- `results/benchmark-info.txt`: Java, operating system, and benchmark settings.
 - `results/plots/`: PNG charts, added after collecting results.
 - `REPORT.md`: analysis and measurements, added in the report stage.
 
@@ -167,9 +231,8 @@ counts. Standard collections remain confined to test code.
 
 ## Current status
 
-The Maven project, shared `Metrics` class, `DynamicArray`, `MyLinkedList`, and
-`MinHeap` are implemented. The benchmark, measurements, charts, and report will
-be added in later stages.
+The Maven project, all three data structures, operation counters, and the
+benchmark are implemented. Charts and the report will be added in later stages.
 
 All measured times will use seconds, including the CSV column `time_s`.
 This is an intentional change from the assignment PDF, which specifies `time_ms`.
