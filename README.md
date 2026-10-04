@@ -76,12 +76,36 @@ Counting rules for all structures:
 - Failed input checks do not add counts. Only operations actually performed are
   counted; totals are not estimated from complexity formulas.
 
+## DynamicArray
+
+`daa.DynamicArray` stores primitive `int` values in an `int[]`. It starts with
+capacity 10. The size is the number of stored values; the capacity is the number
+of available array cells. When full, it allocates an array with twice the capacity
+and copies the existing values. Removing values does not shrink the array.
+
+| Method | Behavior |
+| --- | --- |
+| `add(value)` | Adds a value at the end. Amortized constant time; a growth operation copies all existing values. |
+| `add(index, value)` | Allows indices from 0 through `size`, inclusive. Shifts the suffix right, starting at the end, then stores the new value. |
+| `remove(index)` | Returns the removed value and shifts the following values left. |
+| `get(index)` | Reads an existing value in constant time and counts exactly one step. |
+| `contains(value)` | Searches from the beginning and stops at the first match. |
+
+`get` and `remove` require `0 <= index < size`. Invalid indices throw
+`IndexOutOfBoundsException` before changing data, capacity, or counters.
+`size()`, `capacity()`, and `getMetrics()` expose basic information without
+changing counters. `getMetrics().reset()` clears counts while preserving values.
+
+The tests check empty and single-element arrays, duplicates, integer limits,
+invalid indices, repeated growth, and exact counter values. A test compares
+5,000 mixed operations generated with `new Random(42)` against `ArrayList`.
+Standard collections are used only in tests.
+
 ## Current status
 
-The Maven project and the shared `Metrics` class are implemented. JUnit 5 tests
-cover reset and reuse, independent counter instances, and counts above the
-maximum `int` value. The data structures, benchmark, measurements, charts, and
-report will be added in later stages.
+The Maven project, shared `Metrics` class, and `DynamicArray` are implemented.
+The linked list, heap, benchmark, measurements, charts, and report will be added
+in later stages.
 
 All measured times will use seconds, including the CSV column `time_s`.
 This is an intentional change from the assignment PDF, which specifies `time_ms`.
