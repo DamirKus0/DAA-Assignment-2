@@ -101,11 +101,42 @@ invalid indices, repeated growth, and exact counter values. A test compares
 5,000 mixed operations generated with `new Random(42)` against `ArrayList`.
 Standard collections are used only in tests.
 
+## MyLinkedList
+
+`daa.MyLinkedList` is a singly linked list. Each node holds an `int` value and
+one `next` reference. The list keeps `head`, `tail`, and `size`. A singly linked
+design needs only one link per node and keeps link updates easy to explain.
+The `tail` reference makes appending constant time without walking the list.
+
+| Method | Behavior |
+| --- | --- |
+| `add(value)` | Links a new node after the tail in constant time. For an empty list, sets both head and tail. |
+| `add(index, value)` | Allows indices from 0 through `size`, inclusive. Head insertion and appending are constant time; interior insertion first finds the preceding node. |
+| `remove(index)` | Returns the removed value and reconnects the surrounding links. Head removal is constant time; other removals first find the preceding node. |
+| `get(index)` | Walks forward from the head and follows exactly `index` links. |
+| `contains(value)` | Walks forward and stops at the first matching value. |
+
+Index rules and exceptions match `DynamicArray`. After removing the only node,
+both `head` and `tail` are `null`. Removing the last node of a longer list updates
+`tail` to its predecessor. That search is linear in a singly linked list.
+
+Link changes always count as moves. For example, adding at the head of a
+nonempty list takes zero steps but two moves. Removing its head takes one step
+and one move; removing its only node takes an extra move to clear `tail`.
+Reading a node's value is not a step under the assignment's counting rule.
+Thus, finding a value at the head takes zero steps and one comparison.
+An unsuccessful search follows the final link to `null` and counts that step.
+
+The tests cover head and tail changes, empty-list reuse, duplicates, invalid
+indices, independent counters, and exact counts for each operation. A random
+test compares 5,000 mixed operations with `ArrayList` and checks every stored
+value after each operation.
+
 ## Current status
 
-The Maven project, shared `Metrics` class, and `DynamicArray` are implemented.
-The linked list, heap, benchmark, measurements, charts, and report will be added
-in later stages.
+The Maven project, shared `Metrics` class, `DynamicArray`, and `MyLinkedList`
+are implemented. The heap, benchmark, measurements, charts, and report will be
+added in later stages.
 
 All measured times will use seconds, including the CSV column `time_s`.
 This is an intentional change from the assignment PDF, which specifies `time_ms`.
