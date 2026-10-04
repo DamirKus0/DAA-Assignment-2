@@ -1,7 +1,7 @@
 package daa;
 
 /** Stores int values in an array that doubles its capacity when full. */
-public final class DynamicArray {
+public final class DynamicArray implements IntList {
     private int[] elements = new int[10];
     private int size;
     private final Metrics metrics = new Metrics();
