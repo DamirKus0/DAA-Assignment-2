@@ -132,11 +132,44 @@ indices, independent counters, and exact counts for each operation. A random
 test compares 5,000 mixed operations with `ArrayList` and checks every stored
 value after each operation.
 
+## MinHeap
+
+`daa.MinHeap` stores a binary minimum heap in an `int[]`. For a child at index
+`i > 0`, its parent is at `(i - 1) / 2`. Every parent's value is at most its
+children's values, so the minimum is always at index 0.
+
+| Method | Behavior |
+| --- | --- |
+| `insert(value)` | Stores the value at the end, then swaps it with its parent while it is smaller. |
+| `peekMin()` | Reads the root in constant time without removing it. |
+| `extractMin()` | Returns the root, moves the last value to the root, then swaps it with its smaller child until the heap property is restored. |
+
+`peekMin()` and `extractMin()` throw `IllegalStateException` on an empty heap,
+without changing counters. The initial capacity is 10 and doubles when full.
+Capacity does not shrink after extraction. Sifting uses at most a logarithmic
+number of levels, but an insertion that grows the array also copies all current
+values. A singleton extraction reads the root once and performs no moves.
+
+Comparisons use the values directly, without subtraction, so the full `int`
+range is supported. Sifting reuses values already read for comparisons; each
+swap counts two moves and does not repeat those reads.
+
+Tests inspect every parent and child after each insertion and extraction using
+the package-private `valueAt(index)` method. This method counts its array read
+as one step and does not expose the backing array. Exact operation counts are
+asserted before these diagnostic reads. The benchmark will not call this method.
+
+The tests cover empty and singleton heaps, duplicates, integer limits, repeated
+growth, both child choices during sifting, and exact operation counts. A test
+compares 5,000 mixed operations with `PriorityQueue` using `new Random(42)`.
+Another extracts 1,000 random values and checks nondecreasing order and duplicate
+counts. Standard collections remain confined to test code.
+
 ## Current status
 
-The Maven project, shared `Metrics` class, `DynamicArray`, and `MyLinkedList`
-are implemented. The heap, benchmark, measurements, charts, and report will be
-added in later stages.
+The Maven project, shared `Metrics` class, `DynamicArray`, `MyLinkedList`, and
+`MinHeap` are implemented. The benchmark, measurements, charts, and report will
+be added in later stages.
 
 All measured times will use seconds, including the CSV column `time_s`.
 This is an intentional change from the assignment PDF, which specifies `time_ms`.
