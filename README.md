@@ -7,6 +7,7 @@ and a minimum heap.
 
 - JDK 17 or later. The project targets Java 17.
 - Internet access on the first build to download Maven and dependencies.
+- Python 3.10 or later and Matplotlib are needed only to regenerate the plots.
 
 The Maven Wrapper is included, so a separate Maven installation is not required.
 
@@ -95,18 +96,47 @@ should reproduce operation counts; elapsed times can change with JVM compilation
 garbage collection, and other activity on the computer. Two warm-ups reduce
 startup effects but do not guarantee that the JVM has reached a steady state.
 
+## Reproduce the plots
+
+Install the plotting dependency in a Python virtual environment once:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-plot.txt
+```
+
+Then regenerate all four PNG figures from the current CSV with one command:
+
+```sh
+python scripts/plot_results.py
+```
+
+On Windows, create the environment with `py -m venv .venv` and activate it with
+`.venv\Scripts\Activate.ps1` in PowerShell. The remaining commands are the same.
+The plotting command was checked with Python 3.13 and Matplotlib 3.10.8. It
+validates all 36 cases before drawing and writes `w1.png` through `w4.png` in
+`results/plots/`. Each figure contains time in seconds, steps, moves, and
+comparisons, with shared axes for the compared structures and separate W3
+styles. Zero counts remain visible; identical series are labelled when they
+overlap. To regenerate both measurements and figures, run the benchmark command
+above first, then this plotting command. New elapsed times may require updating
+the numerical discussion in [REPORT.md](REPORT.md).
+
 ## Project layout
 
 - `src/main/java/`: data structures, operation counters, and benchmark.
 - `src/test/java/`: JUnit 5 tests.
 - `results/results.csv`: measured benchmark results.
 - `results/benchmark-info.txt`: Java, operating system, and benchmark settings.
-- `results/plots/`: PNG charts, added after collecting results.
-- `REPORT.md`: analysis and measurements, added in the report stage.
+- `results/plots/`: four PNG figures, each with four metric panels.
+- `scripts/plot_results.py`: CSV validation and plot generation.
+- `requirements-plot.txt`: pinned plotting dependency.
+- `REPORT.md`: complexity table, invariant proofs, plots, and discussion.
 
 ## Operation counters
 
-`daa.Metrics` holds three `long` counters. Each structure will own a separate
+`daa.Metrics` holds three `long` counters. Each structure owns a separate
 instance and update it inside its methods, next to the operation being counted.
 Call `reset()` after setup and before each measured workload. Resetting counters
 does not reset the contents of a structure.
@@ -221,7 +251,7 @@ swap counts two moves and does not repeat those reads.
 Tests inspect every parent and child after each insertion and extraction using
 the package-private `valueAt(index)` method. This method counts its array read
 as one step and does not expose the backing array. Exact operation counts are
-asserted before these diagnostic reads. The benchmark will not call this method.
+asserted before these diagnostic reads. The benchmark does not call this method.
 
 The tests cover empty and singleton heaps, duplicates, integer limits, repeated
 growth, both child choices during sifting, and exact operation counts. A test
@@ -231,8 +261,10 @@ counts. Standard collections remain confined to test code.
 
 ## Current status
 
-The Maven project, all three data structures, operation counters, and the
-benchmark are implemented. Charts and the report will be added in later stages.
+All three data structures, operation counters, the benchmark, charts, and the
+report are implemented. The project passes 65 JUnit 5 tests on Java 17. The CSV
+contains all 36 required cases, and the four figures cover all workload metrics.
+Release preparation still needs the final Git steps and the named submission ZIP.
 
-All measured times will use seconds, including the CSV column `time_s`.
+All measured times use seconds, including the CSV column `time_s`.
 This is an intentional change from the assignment PDF, which specifies `time_ms`.
