@@ -7,7 +7,6 @@ import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Random;
 
-/** Runs the assignment workloads and writes median times in seconds. */
 public final class Benchmark {
     static final int WARMUP_RUNS = 2;
     static final int MEASURED_RUNS = 5;
@@ -44,7 +43,6 @@ public final class Benchmark {
             allInputs[i] = createInputs(sizes[i]);
         }
 
-        // Warm up every case before retaining any measurements.
         for (int phase = 0; phase < 2; phase++) {
             System.out.println(phase == 0 ? "Warming up all cases..." : "Measuring all cases...");
             for (int sizeIndex = 0; sizeIndex < sizes.length; sizeIndex++) {
@@ -205,7 +203,6 @@ public final class Benchmark {
         if (list.size() != expected.length) {
             throw new IllegalStateException("W3 did not restore the original size.");
         }
-        // Both checks are linear. This is after timing and the counter snapshot.
         for (int i = 0; i < expected.length; i++) {
             int actual = list instanceof MyLinkedList ? list.remove(0) : list.get(i);
             if (actual != expected[i]) {
@@ -256,7 +253,6 @@ public final class Benchmark {
                 throw new IllegalStateException("Operation counts differ between repeats.");
             }
         }
-        // There are only five samples, so insertion sort is sufficient.
         for (int i = 1; i < ordered.length; i++) {
             Sample value = ordered[i];
             int j = i - 1;

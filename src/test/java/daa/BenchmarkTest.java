@@ -164,9 +164,7 @@ class BenchmarkTest {
             Benchmark.Inputs inputs = Benchmark.createInputs(n);
             for (String variant : new String[] {"head", "middle"}) {
                 int index = variant.equals("head") ? 0 : n / 2;
-                // Capacities 10 through 640 are copied before reaching capacity 1,280.
                 long growthCopies = 10L + 20L + 40L + 80L + 160L + 320L + 640L;
-                // 1,000 insertions and removals at a fixed index have 999,000 extra shifts.
                 long moves = 2_000L * (n - index) + 999_000L + growthCopies;
 
                 assertCounters(Benchmark.runOnce("W3", variant, "DynamicArray", inputs),

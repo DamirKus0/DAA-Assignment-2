@@ -156,7 +156,6 @@ def draw_workload(workload, rows, output_dir):
         axis.legend(loc="best", fontsize=8.5 if workload == "W3" else 10,
                     frameon=True, facecolor="white", edgecolor="#d9e2ec", framealpha=0.94)
 
-        # Preserve identical observations and explain the overlap instead of jittering data.
         if any(values) and len(values_by_series) > 1:
             if all(series == values_by_series[0] for series in values_by_series[1:]):
                 axis.text(0.97, 0.05, "Series coincide", transform=axis.transAxes,

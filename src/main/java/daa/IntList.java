@@ -1,6 +1,5 @@
 package daa;
 
-/** Common operations used to benchmark the array and linked list fairly. */
 public interface IntList {
     void add(int value);
     void add(int index, int value);

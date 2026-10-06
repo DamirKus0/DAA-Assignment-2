@@ -1,6 +1,5 @@
 package daa;
 
-/** An array-based binary heap with the smallest value at the root. */
 public final class MinHeap {
     private int[] elements = new int[10];
     private int size;
@@ -48,7 +47,6 @@ public final class MinHeap {
         return metrics;
     }
 
-    /** Diagnostic access for tests; the array read still counts as one step. */
     int valueAt(int index) {
         if (index < 0 || index >= size) {
             throw new IndexOutOfBoundsException("Index: " + index + ", size: " + size);
@@ -85,7 +83,6 @@ public final class MinHeap {
     }
 
     private void siftDown(int index) {
-        // Internal nodes have a left child; this guard also prevents index overflow.
         while (index < size / 2) {
             int child = index * 2 + 1;
             int childValue = elements[child];
