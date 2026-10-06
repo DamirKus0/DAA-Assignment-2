@@ -1,6 +1,5 @@
 package daa;
 
-/** Stores int values in an array that doubles its capacity when full. */
 public final class DynamicArray implements IntList {
     private int[] elements = new int[10];
     private int size;
@@ -16,7 +15,6 @@ public final class DynamicArray implements IntList {
         }
         growIfFull();
 
-        // Move backwards so that no element is overwritten before it is copied.
         for (int i = size; i > index; i--) {
             int shifted = elements[i - 1];
             metrics.steps++;
